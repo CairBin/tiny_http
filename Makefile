@@ -1,34 +1,39 @@
-# 定义变量
-CC := g++
-CFLAGS := -Wall -Werror -std=c++11
-LDFLAGS := 
+# Compiler and flags
+CXX := g++
+CXXFLAGS := -std=c++17 -Wall -Iinclude
 
-# 定义源文件和目标文件路径
-SRCDIR := src
-INCDIR := include
-OBJDIR := obj
-BINDIR := bin
+# Directories
+SRC_DIR := src
+INC_DIR := include
+OBJ_DIR := obj
+BIN_DIR := bin
 
-# 定义源文件和目标文件
-SRCS := $(wildcard $(SRCDIR)/*.cpp)
-OBJS := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
-TARGET := $(BINDIR)/http_server
+# Output binary
+TARGET := $(BIN_DIR)/app
 
-# 创建目标文件目录
-$(OBJDIR) $(BINDIR):
-    mkdir -p $@
+# Source and object files
+SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
+OBJECTS := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SOURCES))
 
-# 编译规则
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
-    $(CC) $(CFLAGS) -I$(INCDIR) -c $< -o $@
+# Default target
+all: $(TARGET)
 
-# 链接规则
-$(TARGET): $(OBJS) | $(BINDIR)
-    $(CC) $(OBJS) $(LDFLAGS) -o $@
+# Create binary
+$(TARGET): $(OBJECTS)
+	@mkdir -p $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
-# 定义默认目标
-default: $(TARGET)
+# Compile source files into object files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# 清理规则
+# Clean build files
 clean:
-    rm -rf $(OBJDIR) $(BINDIR)
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
+
+# Rebuild the project
+rebuild: clean all
+
+# Phony targets
+.PHONY: all clean rebuild

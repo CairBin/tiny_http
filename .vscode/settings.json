@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.ejs": "html",
+        "condition_variable": "cpp",
+        "atomic": "cpp",
+        "vector": "cpp"
+    }
+}
