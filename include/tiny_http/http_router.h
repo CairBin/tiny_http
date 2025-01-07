@@ -49,16 +49,23 @@ enum class MethodType{
     POST
 };
 
-class HttpRouter{
+class IRouter{
+public:
+    virtual void AddRoute(MethodType method, const std::string& path, HttpHandler handler) = 0;
+    virtual bool HandleRequest(const std::string &path, HttpRequest &req, HttpResponse &res) = 0;
+};
+
+
+class HttpRouter : public IRouter{
 private:
     std::unordered_map<MethodType, RouterTireTree> tree_;
 
 public:
     HttpRouter();
-    void AddRoute(MethodType method, const std::string& path, HttpHandler handler);
+    void AddRoute(MethodType method, const std::string& path, HttpHandler handler) override;
     void Get(const std::string& path, HttpHandler handler);
     void Post(const std::string& path, HttpHandler handler);
-    bool HandleRequest(const std::string &path, HttpRequest &req, HttpResponse &res);
+    bool HandleRequest(const std::string &path, HttpRequest &req, HttpResponse &res) override;
 };
 
 }

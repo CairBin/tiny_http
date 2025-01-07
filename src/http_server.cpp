@@ -12,20 +12,27 @@
 #include <arpa/inet.h>
 #endif
 #include <stdio.h>
+#include "tiny_http/http_parser.h"
+#include <cstring>
+#include "tiny_http/http_utils.h"
+#include <iostream>
 
 namespace tiny_http {
+
+const uint64_t MAX_BUFFER = 1024;
+
 
 Port HttpServer::get_port() const {
     return this->port_;
 }
 
 int HttpServer::Initialize() {
-    #ifdef _WIN32
+#ifdef _WIN32
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData)!= 0) {
-        return Result<void, std::string>("WSAStartup failed");
+        return -1;
     }
-    #endif
+#endif
 
     // 创建套接字
     socket_ = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -76,6 +83,53 @@ int HttpServer::Bind() {
     }
 }
 
+void HandleConnection(int client_sock, std::unique_ptr<IRouter>& router){
+    if(client_sock < 0) return;
+
+    char buffer[MAX_BUFFER];    // 缓冲区
+    HttpRequestParser parser;   // 请求解析器
+
+    bool error_flag = false;
+    printf("-----------------starting-----------------\n");
+    while(1){
+        if(parser.IsDone()) break;
+        int char_nums = ReadLine(client_sock, buffer, MAX_BUFFER, false);   // 不获取换行符
+        if(char_nums < 0){
+            error_flag = true;
+            break;
+        }
+
+        try{
+            parser.Parse(std::string(buffer, buffer + char_nums));
+        }catch(const std::exception& e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+            error_flag = true;
+            break;
+        }
+    }
+    printf("----------------------------------------------------------------\n");
+
+    if(error_flag){
+        close(client_sock);
+        return;
+    }
+    HttpRequest request;
+    request.method_ = parser.method();
+    request.body_ = parser.body();
+    request.path_ = parser.url();
+    request.version_ = parser.version();
+    request.headers_ = parser.headers();
+
+    HttpResponse response;
+    if(!router->HandleRequest(parser.url(), request, response)){
+        std::cerr << "Error: Error route handler." << std::endl;
+        close(client_sock);
+        return;
+    }
+
+    close(client_sock);
+}
+
 int HttpServer::Listen(){
     if(listen(socket_, listen_queue_size_) < 0){
         return -1;
@@ -103,9 +157,11 @@ int HttpServer::Listen(){
         if(client_sock == -1){
             return -1;
         }
-        pool_->enqueue()
+        pool_->Submit(HandleConnection, client_sock, std::ref(router_));
     }
 }
+
+
 
 
 }

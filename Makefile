@@ -20,17 +20,17 @@ all: $(TARGET)
 
 # Create binary
 $(TARGET): $(OBJECTS)
-	@mkdir -p $(BIN_DIR)
+	$(if $(filter Windows_NT,$(OS)),if not exist $(BIN_DIR) mkdir $(BIN_DIR),mkdir -p $(BIN_DIR))
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 # Compile source files into object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(OBJ_DIR)
+	$(if $(filter Windows_NT,$(OS)),if not exist $(OBJ_DIR) mkdir $(OBJ_DIR),mkdir -p $(OBJ_DIR))
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Clean build files
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR)
+	$(if $(filter Windows_NT,$(OS)),rmdir /S /Q $(OBJ_DIR) $(BIN_DIR),rm -rf $(OBJ_DIR) $(BIN_DIR))
 
 # Rebuild the project
 rebuild: clean all
