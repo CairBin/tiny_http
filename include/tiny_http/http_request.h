@@ -22,6 +22,10 @@ public:
 
 public:
     std::string ToString() const;
+    HttpResponse& SetStatus(unsigned int code);
+    HttpResponse& Send(const std::string& content);
+    HttpResponse& Set(const std::string& key, const std::string& value);
+    HttpResponse& Type(const std::string& type);
 
 private:
     static const std::string GetStatusMessage(int status_code);

@@ -6,22 +6,33 @@ CXXFLAGS := -std=c++17 -Wall -Iinclude
 SRC_DIR := src
 INC_DIR := include
 OBJ_DIR := obj
+LIB_DIR := lib
 BIN_DIR := bin
 
-# Output binary
-TARGET := $(BIN_DIR)/app
+# Output library and executable
+LIB_TARGET := $(LIB_DIR)/libtiny_http.a
+APP_TARGET := $(BIN_DIR)/app
 
-# Source and object files
-SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
-OBJECTS := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SOURCES))
+# Source and object files for library
+LIB_SOURCES := $(filter-out $(SRC_DIR)/main.cpp, $(wildcard $(SRC_DIR)/*.cpp))
+LIB_OBJECTS := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(LIB_SOURCES))
+
+# Source and object files for app
+APP_SOURCES := $(SRC_DIR)/main.cpp
+APP_OBJECTS := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(APP_SOURCES))
 
 # Default target
-all: $(TARGET)
+all: $(LIB_TARGET) $(APP_TARGET)
 
-# Create binary
-$(TARGET): $(OBJECTS)
+# Create static library
+$(LIB_TARGET): $(LIB_OBJECTS)
+	$(if $(filter Windows_NT,$(OS)),if not exist $(LIB_DIR) mkdir $(LIB_DIR),mkdir -p $(LIB_DIR))
+	ar rcs $@ $^
+
+# Create app executable
+$(APP_TARGET): $(APP_OBJECTS) $(LIB_TARGET)
 	$(if $(filter Windows_NT,$(OS)),if not exist $(BIN_DIR) mkdir $(BIN_DIR),mkdir -p $(BIN_DIR))
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@ -L$(LIB_DIR) -ltiny_http
 
 # Compile source files into object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
@@ -30,7 +41,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 # Clean build files
 clean:
-	$(if $(filter Windows_NT,$(OS)),rmdir /S /Q $(OBJ_DIR) $(BIN_DIR),rm -rf $(OBJ_DIR) $(BIN_DIR))
+	$(if $(filter Windows_NT,$(OS)),rmdir /S /Q $(OBJ_DIR) $(LIB_DIR) $(BIN_DIR),rm -rf $(OBJ_DIR) $(LIB_DIR) $(BIN_DIR))
 
 # Rebuild the project
 rebuild: clean all

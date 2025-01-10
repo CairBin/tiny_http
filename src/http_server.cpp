@@ -90,7 +90,7 @@ void HandleConnection(int client_sock, std::unique_ptr<IRouter>& router){
     HttpRequestParser parser;   // 请求解析器
 
     bool error_flag = false;
-    printf("-----------------starting-----------------\n");
+
     while(1){
         if(parser.IsDone()) break;
         int char_nums = ReadLine(client_sock, buffer, MAX_BUFFER, false);   // 不获取换行符
@@ -102,18 +102,19 @@ void HandleConnection(int client_sock, std::unique_ptr<IRouter>& router){
         try{
             parser.Parse(std::string(buffer, buffer + char_nums));
         }catch(const std::exception& e) {
-            std::cerr << "Error: " << e.what() << std::endl;
+            // std::cerr << "Error: " << e.what() << std::endl;
             error_flag = true;
             break;
         }
     }
-    printf("----------------------------------------------------------------\n");
+
 
     if(error_flag){
         close(client_sock);
         return;
     }
     HttpRequest request;
+
     request.method_ = parser.method();
     request.body_ = parser.body();
     request.path_ = parser.url();
@@ -122,10 +123,13 @@ void HandleConnection(int client_sock, std::unique_ptr<IRouter>& router){
 
     HttpResponse response;
     if(!router->HandleRequest(parser.url(), request, response)){
-        std::cerr << "Error: Error route handler." << std::endl;
+        // std::cerr << "Error: Error route handler." << std::endl;
         close(client_sock);
         return;
     }
+
+    std::string result = response.ToString();
+    send(client_sock, result.c_str(), result.size(), 0);
 
     close(client_sock);
 }

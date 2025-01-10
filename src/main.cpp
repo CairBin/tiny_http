@@ -1,10 +1,13 @@
+/*
+ * 测试文件
+*/
 #include <iostream>
 #include "tiny_http/http_server.h"
 #include "tiny_http/http_router.h"
 int main(){
     auto router = std::make_unique<tiny_http::HttpRouter>();
     router->Get("/", [](tiny_http::HttpRequest& req, tiny_http::HttpResponse& res){
-        std::cout << "Hello World!" << std::endl;
+        res.SetStatus(404).Send("<h1>HelloWorld</h1>");
     });
     std::unique_ptr<tiny_http::IRouter> irouter = std::move(router);
 

@@ -44,9 +44,21 @@ public:
     bool HandleRequest(const std::string& path, HttpRequest& req, HttpResponse& res);
 };
 
-enum class MethodType{
+enum class MethodType {
     GET,
-    POST
+    POST,
+    HEAD,
+    PUT,
+    DELETE,
+    CONNECT,
+    OPTIONS,
+    TRACE,
+    PATCH,
+    PROPFIND,   // WebDAV相关
+    PROPPATCH,  // WebDAV相关
+    MKCOL,      // WebDAV相关
+    COPY,       // WebDAV相关
+    MOVE        // WebDAV相关
 };
 
 class IRouter{
