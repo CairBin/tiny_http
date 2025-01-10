@@ -1,5 +1,5 @@
-#ifndef _HTTP_PARSER_H_
-#define _HTTP_PARSER_H_
+#ifndef HTTP_PARSER_H_
+#define HTTP_PARSER_H_
 
 #include <string>
 #include <unordered_map>
@@ -58,4 +58,4 @@ class HttpRequestParser {
 
 }
 
-#endif
+#endif // HTTP_PARSER_H_

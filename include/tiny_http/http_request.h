@@ -1,5 +1,5 @@
-#ifndef _HTTP_REQUEST_H_
-#define _HTTP_REQUEST_H_
+#ifndef HTTP_REQUEST_H_
+#define HTTP_REQUEST_H_
 
 #include <cstring>
 #include <string>
@@ -33,4 +33,4 @@ private:
 
 }
 
-#endif
+#endif // HTTP_REQUEST_H_

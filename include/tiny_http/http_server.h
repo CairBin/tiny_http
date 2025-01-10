@@ -1,5 +1,5 @@
-#ifndef _HTTP_SERVER_H_
-#define _HTTP_SERVER_H_
+#ifndef HTTP_SERVER_H_
+#define HTTP_SERVER_H_
 
 #include <cstdint>
 #include <string>
@@ -41,4 +41,4 @@ public:
 }
 
 
-#endif
+#endif // HTTP_SERBER_H_

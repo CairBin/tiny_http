@@ -1,5 +1,5 @@
-#ifndef _THREAD_POOL_H_
-#define _THREAD_POOL_H_
+#ifndef THREAD_POOL_H_
+#define THREAD_POOL_H_
 
 #include <functional>
 #include <future>
@@ -47,4 +47,4 @@ private:
   std::atomic<bool> stop_;                       // 标记线程池是否停止
 };
 
-#endif  // _THREAD_POOL_H_
+#endif  // THREAD_POOL_H_

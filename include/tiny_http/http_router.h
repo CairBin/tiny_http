@@ -1,5 +1,5 @@
-#ifndef _HTTP_ROUTER_H_
-#define _HTTP_ROUTER_H_
+#ifndef HTTP_ROUTER_H_
+#define HTTP_ROUTER_H_
 
 #include <string>
 #include <unordered_map>
@@ -82,4 +82,4 @@ public:
 
 }
 
-#endif
+#endif // HTTP_ROUTER_H_
