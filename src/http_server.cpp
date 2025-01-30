@@ -55,6 +55,7 @@ int HttpServer::Initialize() {
     if(ret == -1){
         return -1;
     }
+    return 0;
 }
 
 int HttpServer::Bind() {
@@ -81,6 +82,8 @@ int HttpServer::Bind() {
             return -1;
         port_ = server_addr.sin_port;
     }
+
+    return 0;
 }
 
 void HandleConnection(int client_sock, std::unique_ptr<IRouter>& router){
