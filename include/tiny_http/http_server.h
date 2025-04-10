@@ -23,7 +23,7 @@ private:
 
 public:
     HttpServer(std::unique_ptr<IRouter>& router) : HttpServer(DEFAULT_PORT, LISTEN_QUEUE_SIZE, THREAD_POOL_SIZE, router) {}
-    HttpServer(Port port, std::unique_ptr<IRouter>& router) : HttpServer(port, listen_queue_size_, THREAD_POOL_SIZE, router) {}
+    HttpServer(Port port, std::unique_ptr<IRouter>& router) : HttpServer(port, LISTEN_QUEUE_SIZE, THREAD_POOL_SIZE, router) {}
     HttpServer(Port port, int listen_queue_size, uint64_t pool_size, std::unique_ptr<IRouter>& router) : port_(port), listen_queue_size_(listen_queue_size), router_(router) {
         pool_ = new ThreadPool(pool_size);
     }
