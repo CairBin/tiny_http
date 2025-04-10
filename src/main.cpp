@@ -9,6 +9,16 @@ int main(){
     router->Get("/", [](tiny_http::HttpRequest& req, tiny_http::HttpResponse& res){
         res.SetStatus(404).Send("<h1>HelloWorld</h1>");
     });
+
+    router->Get("/test/:id/:name", [](tiny_http::HttpRequest& req, tiny_http::HttpResponse& res){
+        std::string html = "";
+        for(auto &param : req.params_){
+            html += "<h1>" + param.first + ": " + param.second + "</h1>";
+        }
+        html += "<script>console.log(123);</script>";
+        res.SetStatus(200).Send(html);
+    });
+
     std::unique_ptr<tiny_http::IRouter> irouter = std::move(router);
 
     tiny_http::HttpServer server(8080, std::ref(irouter));

@@ -41,7 +41,7 @@ void RouterTireTree::InsertNode(Node* parent, const std::string& path, int start
     InsertNode(parent->children_[first_char], path, next_slash + 1, end, handler);
 }
 
-RouterTireTree::Node* RouterTireTree::FindNode(Node *parent, const std::string& path, int start, int end, std::vector<std::string>& param_values){
+RouterTireTree::Node* RouterTireTree::FindNode(Node *parent, const std::string& path, int start, int end, std::unordered_map<std::string, std::string>& param_values){
     if(start >= end){
         return parent->handler_ ? parent : nullptr;
     }
@@ -62,7 +62,7 @@ RouterTireTree::Node* RouterTireTree::FindNode(Node *parent, const std::string& 
             {
                 if (child->n_type_ == RouterNodeType::PARAM)
                 {
-                    param_values.push_back(sub_path.substr(1));
+                    param_values[child->path_.substr(1, child->path_.size()-1)] = sub_path;
                 }
                 Node *found = FindNode(child, path, next_slash + 1, end, param_values);
                 if (found){
@@ -79,7 +79,7 @@ RouterTireTree::Node* RouterTireTree::FindNode(Node *parent, const std::string& 
     {
         if (parent->children_[first_char]->n_type_ == RouterNodeType::PARAM)
         {
-            param_values.push_back(sub_path.substr(1));
+            param_values[parent->children_[first_char]->path_.substr(1, parent->children_[first_char]->path_.size() - 1)] = sub_path;
         }
         return FindNode(parent->children_[first_char], path, next_slash + 1, end, param_values);
     }
@@ -113,8 +113,9 @@ void RouterTireTree::AddRoute(const std::string& path, HttpHandler handler){
 }
 
 bool RouterTireTree::HandleRequest(const std::string& path, HttpRequest& req, HttpResponse& res){
-    std::vector<std::string> param_values;
+    std::unordered_map<std::string, std::string> param_values;
     Node* node = FindNode(root_, path, 0, path.size(), param_values);
+    req.params_ = param_values;
     if(node){
         node->handler_(req, res);
         return true;

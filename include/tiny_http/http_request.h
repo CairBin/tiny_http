@@ -12,6 +12,7 @@ public:
     std::string version_;
     std::string body_;
     std::unordered_map<std::string, std::string> headers_;
+    std::unordered_map<std::string, std::string> params_;
 };
 
 class HttpResponse{

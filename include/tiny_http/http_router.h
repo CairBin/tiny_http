@@ -35,7 +35,7 @@ private:
 
 private:
     void InsertNode(Node* parent, const std::string& path, int start, int end, HttpHandler handler);
-    Node* FindNode(Node *parent, const std::string &path, int start, int end, std::vector<std::string>& param_values);
+    Node* FindNode(Node *parent, const std::string &path, int start, int end, std::unordered_map<std::string, std::string>& param_values);
 
 public:
     RouterTireTree();
