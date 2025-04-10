@@ -2,6 +2,7 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#define close(sock) closesocket(sock)
 #pragma comment(lib, "ws2_32.lib")
 #else
 #include <unistd.h>
