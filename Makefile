@@ -1,5 +1,5 @@
 # Compiler and flags
-CXX := clang++
+CXX := g++
 CXXFLAGS := -std=c++17 -Wall -Iinclude
 
 # Directories
@@ -32,7 +32,7 @@ $(LIB_TARGET): $(LIB_OBJECTS)
 # Create app executable
 $(APP_TARGET): $(APP_OBJECTS) $(LIB_TARGET)
 	$(if $(filter Windows_NT,$(OS)),if not exist $(BIN_DIR) mkdir $(BIN_DIR),mkdir -p $(BIN_DIR))
-	$(CXX) $(CXXFLAGS) $^ -o $@ -L$(LIB_DIR) -ltiny_http
+	$(CXX) $(CXXFLAGS) $^ -o $@ -L$(LIB_DIR) -ltiny_http $(if $(filter Windows_NT,$(OS)), -lwsock32)
 
 # Compile source files into object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
