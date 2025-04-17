@@ -5,6 +5,7 @@
 #include <string>
 #include "tiny_http/thread_pool.h"
 #include "tiny_http/http_router.h"
+#include "tiny_http/http_middleware.h"
 
 namespace tiny_http{
 
@@ -20,12 +21,14 @@ private:
     int listen_queue_size_;
     ThreadPool* pool_ = nullptr;
     std::unique_ptr<IRouter>& router_;
+    std::unique_ptr<MiddlewareChain> chain_;
 
 public:
     HttpServer(std::unique_ptr<IRouter>& router) : HttpServer(DEFAULT_PORT, LISTEN_QUEUE_SIZE, THREAD_POOL_SIZE, router) {}
     HttpServer(Port port, std::unique_ptr<IRouter>& router) : HttpServer(port, LISTEN_QUEUE_SIZE, THREAD_POOL_SIZE, router) {}
     HttpServer(Port port, int listen_queue_size, uint64_t pool_size, std::unique_ptr<IRouter>& router) : port_(port), listen_queue_size_(listen_queue_size), router_(router) {
         pool_ = new ThreadPool(pool_size);
+        chain_ = std::make_unique<MiddlewareChain>();
     }
     ~HttpServer() {
         delete pool_;
@@ -33,6 +36,7 @@ public:
     int Initialize();
     int Bind();
     int Listen();
+    void Use(const Middleware& middleware);
 
 public:
     Port get_port() const;

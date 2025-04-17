@@ -56,6 +56,22 @@ int HttpServer::Initialize() {
     if(ret == -1){
         return -1;
     }
+
+    // 注册路由中间件
+    if(!router_){
+        return -1;
+    }
+
+    chain_->Use([this](HttpRequest& req, HttpResponse& res, std::function<void()> next){
+        if(!router_->HandleRequest(req.path_, req, res)){
+            res.SetStatus(404);
+            res.Send("<h1>404 Not Found</h1>");
+            next();
+            return;
+        }
+        next();
+    });
+
     return 0;
 }
 
@@ -87,7 +103,7 @@ int HttpServer::Bind() {
     return 0;
 }
 
-void HandleConnection(int client_sock, std::unique_ptr<IRouter>& router){
+void HandleConnection(int client_sock, std::unique_ptr<MiddlewareChain>& chain){
     if(client_sock < 0) return;
 
     char buffer[MAX_BUFFER];    // 缓冲区
@@ -117,6 +133,7 @@ void HandleConnection(int client_sock, std::unique_ptr<IRouter>& router){
         close(client_sock);
         return;
     }
+
     HttpRequest request;
 
     request.method_ = parser.method();
@@ -126,11 +143,7 @@ void HandleConnection(int client_sock, std::unique_ptr<IRouter>& router){
     request.headers_ = parser.headers();
 
     HttpResponse response;
-    if(!router->HandleRequest(parser.url(), request, response)){
-        // std::cerr << "Error: Error route handler." << std::endl;
-        close(client_sock);
-        return;
-    }
+    chain->Execute(request, response);
 
     std::string result = response.ToString();
     send(client_sock, result.c_str(), result.size(), 0);
@@ -165,11 +178,14 @@ int HttpServer::Listen(){
         if(client_sock == -1){
             return -1;
         }
-        pool_->Submit(HandleConnection, client_sock, std::ref(router_));
+
+        pool_->Submit(HandleConnection, client_sock, std::ref(chain_));
     }
 }
 
-
+void HttpServer::Use(const Middleware& middleware){
+    chain_->Use(middleware);
+}
 
 
 }
