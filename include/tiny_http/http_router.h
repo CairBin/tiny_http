@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <functional>
 #include "tiny_http/http_request.h"
 
 namespace tiny_http{
@@ -15,7 +16,7 @@ enum class RouterNodeType{
     CATCH_ALL   // 通配符节点
 };
 
-typedef void(*HttpHandler)(HttpRequest& req, HttpResponse& res);
+using HttpHandler = std::function<void(HttpRequest&, HttpResponse&)>;
 
 class RouterTireTree{
 private:
@@ -78,6 +79,7 @@ public:
     void Get(const std::string& path, HttpHandler handler);
     void Post(const std::string& path, HttpHandler handler);
     bool HandleRequest(const std::string &path, HttpRequest &req, HttpResponse &res) override;
+    void StaticFile(const std::string& path);
 };
 
 }

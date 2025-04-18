@@ -6,6 +6,7 @@
 #include "tiny_http/http_router.h"
 int main(){
     auto router = std::make_unique<tiny_http::HttpRouter>();
+    router->StaticFile("/home/cairbin/Others/program/cpp/tiny_http/bin/static");
     router->Get("/", [](tiny_http::HttpRequest& req, tiny_http::HttpResponse& res){
         res.SetStatus(200).Send("<h1>HelloWorld</h1>");
     });

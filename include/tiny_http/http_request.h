@@ -25,6 +25,7 @@ public:
     std::string ToString() const;
     HttpResponse& SetStatus(unsigned int code);
     HttpResponse& Send(const std::string& content);
+    HttpResponse& Append(const std::string& ctx);
     HttpResponse& Set(const std::string& key, const std::string& value);
     HttpResponse& Type(const std::string& type);
 

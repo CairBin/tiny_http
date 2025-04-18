@@ -1,5 +1,8 @@
 #include "tiny_http/http_router.h"
 #include <regex>
+#include <filesystem>
+#include <iostream>
+#include <fstream>
 
 namespace tiny_http {
 
@@ -149,6 +152,52 @@ bool HttpRouter::HandleRequest(const std::string& path, HttpRequest& req, HttpRe
     }else{
         return false;
     }
+}
+
+std::string ToUrlFormat(const std::string& path){
+    std::string result = path;
+    for(char& c : result){
+        if(c == '\\')
+            c = '/';
+    }
+    return result;
+}
+
+void RelativePath(const std::filesystem::path& base, std::vector<std::string>& rel_vec, std::vector<std::string>& fs_vec){
+    for(const auto& entry : std::filesystem::recursive_directory_iterator(base)){
+        std::filesystem::path relative = std::filesystem::relative(entry.path(), base);
+        std::string url = ToUrlFormat(relative.string());
+
+        rel_vec.push_back("/" + url);
+        fs_vec.push_back(entry.path().string());
+    }
+}
+
+void HttpRouter::StaticFile(const std::string& path){
+    std::filesystem::path base = path;
+    std::vector<std::string> vec;
+    std::vector<std::string> fs;
+    if(std::filesystem::exists(base) && std::filesystem::is_directory(base)){
+        RelativePath(base, vec, fs);
+        for(size_t i = 0; i < vec.size(); i++){
+            Get(vec[i], [i, fs](HttpRequest &req, HttpResponse &res){
+                std::ifstream file(fs[i]);
+                if(!file.is_open()){
+                    file.close();
+                    res.SetStatus(500);
+                    return;
+                }
+                std::string line;
+                while(std::getline(file, line)){
+                    res.Append(line);
+                }
+                file.close(); 
+            });
+        }
+        return;
+    }
+
+    std::cerr << "Target path is not directory." << std::endl;
 }
 
 }

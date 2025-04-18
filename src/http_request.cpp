@@ -118,6 +118,11 @@ HttpResponse& HttpResponse::Send(const std::string& content){
     return *this;
 }
 
+HttpResponse& HttpResponse::Append(const std::string& ctx){
+    body_ += ctx;
+    return *this;
+}
+
 HttpResponse& HttpResponse::Set(const std::string& key, const std::string& value){
     headers_[key] = value;
     return *this;
